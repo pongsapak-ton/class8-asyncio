@@ -3,12 +3,13 @@ import asyncio
 import time
 
 # coroutine to generate work 
-async def producer(queue): 
+async def producer(queue,qu): 
     print(f'{time.ctime()} Producer: Running') 
     # generate work 
     for i in range(10): 
         # generate a value 
-        value = random() 
+        #value = random()
+        value = (qu+1)*0.1
         # block to simulate work 
         await asyncio.sleep(value) 
         # add to the queue 
@@ -16,7 +17,7 @@ async def producer(queue):
         #print(f'{time.ctime()} Producer: put {value}')
     # send an all done signal 
     await queue.put(None) 
-    print(f'{time.ctime()} Producer: Done')
+    print(f'{time.ctime()} Producer{qu}: Done')
 
 # coonsumer work
 async def consumer(queue):
@@ -42,7 +43,7 @@ async def main():
     # start the consumer
     _ = asyncio.create_task(consumer(queue))
     # create many producers
-    producers = [producer(queue) for _ in range(5)]
+    producers = [producer(queue,qu) for qu in range(5)]
     # run and wait for the producers to finish
     await asyncio.gather(*producers)
     # wait for the consumer to  proocess all items
